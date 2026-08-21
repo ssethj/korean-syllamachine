@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>한글 조립 슬롯머신</title>
+    <style>
+        :root {
+            --primary-bg: #2c3e50;
+            --accent: #e74c3c;
+            --text: #ecf0f1;
+            --slot-bg: #222;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--primary-bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px 10px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        
+        h1 {
+            margin: 10px 0 20px;
+            font-size: 1.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* 설정 버튼 */
+        .btn-settings {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #34495e;
+            color: var(--text);
+            border: 1px solid #7f8c8d;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            z-index: 100;
+        }
+
+        /* Drawer */
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            opacity: 0; visibility: hidden; transition: opacity 0.3s; z-index: 1000;
+        }
+        .drawer-overlay.active { opacity: 1; visibility: visible; }
+
+        .settings-drawer {
+            position: fixed; top: 0; right: -100%; width: 85%; max-width: 300px; height: 100%;
+            background-color: #34495e; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            transition: right 0.3s; z-index: 1001; box-sizing: border-box;
+        }
+        .settings-drawer.active { right: 0; }
+
+        .drawer-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #7f8c8d;
+        }
+        .btn-close { background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; }
+
+        .setting-item { margin-bottom: 20px; font-size: 0.9em; }
+        .setting-item.checkbox-type { display: flex; justify-content: space-between; align-items: center; }
+
+        /* 슬롯머신 */
+        .slot-machine {
+            background-color: var(--accent);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 4px solid #c0392b;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .reels-container {
+            display: flex; gap: 8px;
+            background: var(--slot-bg);
+            padding: 15px;
+            border-radius: 10px;
+            justify-content: center;
+        }
+
+        .reel {
+            width: 80px; height: 100px;
+            background: linear-gradient(#fdfbfb, #ebedee);
+            border-radius: 6px;
+            font-size: 3em; color: #333;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .btn-spin {
+            background-color: #f1c40f; color: #d35400;
+            border: none; padding: 15px 0; width: 100%;
+            font-size: 1.5em; border-radius: 10px;
+            cursor: pointer; font-weight: bold; margin-top: 15px;
+        }
+
+        .result-display {
+            font-size: 1.2em; min-height: 80px; margin-top: 20px;
+        }
+
+        .result-char {
+            font-size: 3em; color: #f1c40f;
+            text-shadow: 0 0 10px rgba(241,196,15,0.5);
+        }
+
+        /* 모바일 최적화 미디어 쿼리 */
+        @media (max-width: 350px) {
+            .reel { width: 60px; height: 80px; font-size: 2.5em; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-settings" onclick="toggleDrawer()">⚙️ 설정</button>
+    <!--<h1>🎰 한글 슬롯</h1>-->
+
+    <div class="slot-machine">
+        <div class="reels-container">
+            <div class="reel" id="reelCho">ㄱ</div>
+            <div class="reel" id="reelJung">ㅏ</div>
+            <div class="reel" id="reelJong">&nbsp;</div>
+        </div>
+        <button class="btn-spin" id="spinBtn" onclick="spin()">SPIN!</button>
+    </div>
+
+    <div class="result-display" id="resultText"></div>
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+    <div class="settings-drawer" id="settingsDrawer">
+        <div class="drawer-header"><h2>설정</h2><button class="btn-close" onclick="toggleDrawer()">&times;</button></div>
+        <!-- 설정 항목들 (생략됨 - 이전 버전과 동일) -->
+        <div class="setting-item checkbox-type">
+            <label>초성 쌍자음<br><small>(ㄲ,ㄸ,ㅃ,ㅆ,ㅉ)</small></label>
+            <input type="checkbox" id="optChoDouble" checked>
+        </div>
+        <div class="setting-item checkbox-type">
+            <label>종성 쌍자음<br><small>(ㄲ,ㅆ)</small></label>
+            <input type="checkbox" id="optJongDouble" checked>
+        </div>
+        <div class="setting-item checkbox-type">
+            <label>종성 겹받침<br><small>(ㄳ,ㄵ,ㄶ 등)</small></label>
+            <input type="checkbox" id="optJongMixed">
+        </div>
+        <div class="setting-item">
+            <label>받침 없음 확률</label>
+            <input type="range" id="optEmptyProb" min="0" max="100" value="50" style="width:100%" oninput="document.getElementById('probValue').innerText=this.value+'%'">
+            <span id="probValue">50%</span>
+        </div>
+    </div>
+
+    <script>
+        function toggleDrawer() {
+            document.getElementById('settingsDrawer').classList.toggle('active');
+            document.getElementById('drawerOverlay').classList.toggle('active');
+        }
+
+        const CHO = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+        const JUNG = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'];
+        const JONG = ['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+
+        let isSpinning = false;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playTickSound() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.02);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.02);
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            initAudio();
+            if(document.getElementById('settingsDrawer').classList.contains('active')) toggleDrawer();
+
+            const btn = document.getElementById('spinBtn');
+            btn.disabled = true;
+
+            const finalChoIdx = Math.floor(Math.random() * CHO.length);
+            const finalJungIdx = Math.floor(Math.random() * JUNG.length);
+            const finalJongIdx = Math.random() * 100 >= 50 ? Math.floor(Math.random() * JONG.length) : 0;
+
+            let spinTime = 0;
+            const interval = setInterval(() => {
+                spinTime++;
+                playTickSound();
+                document.getElementById('reelCho').innerText = CHO[Math.floor(Math.random() * CHO.length)];
+                document.getElementById('reelJung').innerText = JUNG[Math.floor(Math.random() * JUNG.length)];
+                document.getElementById('reelJong').innerHTML = JONG[Math.floor(Math.random() * JONG.length)] || '&nbsp;';
+                
+                if (spinTime >= 30) {
+                    clearInterval(interval);
+                    document.getElementById('reelCho').innerText = CHO[finalChoIdx];
+                    document.getElementById('reelJung').innerText = JUNG[finalJungIdx];
+                    document.getElementById('reelJong').innerHTML = JONG[finalJongIdx] || '&nbsp;';
+                    
+                    const charCode = 44032 + (finalChoIdx * 21 * 28) + (finalJungIdx * 28) + finalJongIdx;
+                    const finalChar = String.fromCharCode(charCode);
+                    document.getElementById('resultText').innerHTML = `<div class='result-char'>${finalChar}</div>`;
+                    
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(finalChar));
+                    }
+                    isSpinning = false;
+                    btn.disabled = false;
+                }
+            }, 50);
+        }
+    </script>
+</body>
+</html>
