@@ -24,6 +24,7 @@
             min-height: 100vh;
             box-sizing: border-box;
             overflow-x: hidden;
+            padding-bottom: 60px; /* 고정된 커피 버튼 아래 공간 확보 */
         }
         
         h1 {
@@ -117,15 +118,16 @@
             text-shadow: 0 0 10px rgba(241,196,15,0.5);
         }
 
-        /* Buy Me a Coffee 버튼 */
+        /* Buy Me a Coffee 버튼 - 화면 하단에 고정, 전체 폭 차지 */
         .btn-coffee {
+            position: fixed;
+            left: 0; right: 0; bottom: 0; /* 전체 폭 + 하단 고정 */
             background-color: #f1c40f; color: #7d3c00;
-            border: none; padding: 16px 28px;
-            font-size: 1.1em; font-weight: bold; border-radius: 12px;
+            border: none; padding: 16px 0;
+            font-size: 1.2em; font-weight: bold; border-radius: 0;
             cursor: pointer; text-decoration: none;
-            margin-top: 24px;
-            display: inline-flex; align-items: center; gap: 8px;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 -5px 12px rgba(0,0,0,0.3);
             transition: transform 0.2s;
         }
         .btn-coffee:hover { transform: translateY(-2px); }
