@@ -117,6 +117,19 @@
             text-shadow: 0 0 10px rgba(241,196,15,0.5);
         }
 
+        /* Buy Me a Coffee 버튼 */
+        .btn-coffee {
+            background-color: #f1c40f; color: #7d3c00;
+            border: none; padding: 16px 28px;
+            font-size: 1.1em; font-weight: bold; border-radius: 12px;
+            cursor: pointer; text-decoration: none;
+            margin-top: 24px;
+            display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .btn-coffee:hover { transform: translateY(-2px); }
+
         /* 모바일 최적화 미디어 쿼리 */
         @media (max-width: 350px) {
             .reel { width: 60px; height: 80px; font-size: 2.5em; }
@@ -138,6 +151,10 @@
     </div>
 
     <div class="result-display" id="resultText"></div>
+
+    <a class="btn-coffee" href="https://www.buymeacoffee.com/lungo" target="_blank" rel="noopener">
+        ☕ Buy me a coffee
+    </a>
 
     <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
     <div class="settings-drawer" id="settingsDrawer">
